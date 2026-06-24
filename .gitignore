@@ -10,6 +10,7 @@ venv/
 build/
 dist/
 *.spec
+*.egg-info/
 
 # Local note storage
 .quicknote.json

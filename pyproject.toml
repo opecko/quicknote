@@ -1,0 +1,13 @@
+[project]
+name = "quicknote"
+version = "0.1.0"
+description = "Notes in the terminal"
+requires-python = ">=3.9"
+dependencies = ["click", "rich", "tinydb"]
+
+[project.scripts]
+note = "quicknote.cli:cli"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
