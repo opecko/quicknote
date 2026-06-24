@@ -6,54 +6,71 @@ Notes are stored in `~/.quicknote.json`.
 
 ## Installation
 
+### As a package (provides the `note` command)
+
 ```bash
-git clone <repo-url> quicknote
+git clone https://github.com/opecko/quicknote.git
+cd quicknote
+pip install .
+```
+
+This installs a `note` command available system-wide.
+
+### For development
+
+```bash
+git clone https://github.com/opecko/quicknote.git
 cd quicknote
 
 python -m venv venv
 source venv/bin/activate        # fish: source venv/bin/activate.fish
-pip install -r requirements.txt
+pip install -e .
 ```
+
+`-e` installs in editable mode, so code changes take effect immediately.
 
 ## Usage
 
 ```bash
-python main.py add "buy milk"          # add a note
-python main.py list                    # list unfinished notes
-python main.py list --all              # list everything, including done
-python main.py search "milk"           # search note text
-python main.py done 2                  # mark note #2 as done
-python main.py delete 2                # delete note #2
+note add "buy milk"            # add a note
+note list                      # list all notes
+note list --completed          # show only completed notes
+note list --uncompleted        # show only uncompleted notes
+note mark-done 2               # mark note at position 2 as done
+note mark-undone 2             # mark note at position 2 as not done
+note delete 2                  # delete note at position 2
 ```
 
 You can write the note text without quotes — the words are joined together:
 
 ```bash
-python main.py add buy milk and bread
+note add buy milk and bread
 ```
 
-### Positions vs. quotes
+### Positions
 
-Notes in `list` are numbered starting from `1`. The `done` and `delete` commands
-take this **list position**, not any internal ID. After a delete, the remaining
-notes are renumbered, so the position always matches what you see in `list`.
+Notes are numbered starting from `1`. The `delete`, `mark-done`, and `mark-undone`
+commands take this **list position**, not any internal ID. Always take the position
+from a plain `note list` — filtered views (`--completed` / `--uncompleted`) renumber
+the notes, so their numbers won't match.
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
 | `add <text>` | Add a new note |
-| `list` | List notes (unfinished by default) |
-| `list --all`, `-a` | List everything, including done |
-| `search <query>` | Search note text |
-| `done <position>` | Mark a note as done |
+| `list` | List all notes |
+| `list --completed`, `-c` | Show only completed notes |
+| `list --uncompleted`, `-u` | Show only uncompleted notes |
+| `mark-done <position>` | Mark a note as done |
+| `mark-undone <position>` | Mark a note as not done |
 | `delete <position>` | Delete a note |
 
 Help for any command:
 
 ```bash
-python main.py --help
-python main.py list --help
+note --help
+note list --help
 ```
 
 ## Stack
@@ -71,7 +88,19 @@ quicknote/
 │   ├── db.py        # TinyDB logic
 │   ├── models.py    # Note dataclass
 │   └── display.py   # rich output
+├── aur/             # AUR packaging (PKGBUILD, .SRCINFO)
 ├── main.py          # entry point
-├── requirements.txt
+├── pyproject.toml
 └── README.md
+```
+
+## Packaging
+
+An `aur/PKGBUILD` is included for building an Arch package. AUR publication is
+pending while account registration on the AUR is temporarily disabled. You can
+still build and install locally:
+
+```bash
+cd aur
+makepkg -si
 ```
