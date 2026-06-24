@@ -1,5 +1,4 @@
 import click
-from click.decorators import argument
 
 from quicknote import db
 from quicknote.display import show_notes
@@ -15,53 +14,85 @@ def cli():
 @click.argument("text", nargs=-1)
 def add(text):
     """Add a new note"""
+
     text = " ".join(text)
     if not text:
         click.echo("No note provided.")
         return
+
     db.add_note(text)
     click.echo(f"Note added: {text}")
 
 
 @cli.command(name="list")
-@click.option("--completed", "-c", is_flag=True, help="Shows already completed notes")
-@click.option(
-    "--all", "-a", is_flag=True, help="Shows all tasks (completed and uncompleted)"
-)
-def list_notes(all, completed):
-    """Lists completed notes (see more by at 'notes list --help')"""
+@click.option("--completed", "-c", is_flag=True, help="Shows only completed notes")
+@click.option("--uncompleted", "-u", is_flag=True, help="Shows only uncompleted notes")
+def list_notes(uncompleted, completed):
+    """Lists completed notes (see more at 'notes list --help')"""
+
     notes = db.get_all()
 
     if completed:
         notes = [n for n in notes if n.done]
-
-    if not all:
+    elif uncompleted:
         notes = [n for n in notes if not n.done]
-
-    # když all=true tak to nic nedela (projde to se vším)
 
     show_notes(notes)
 
 
 @cli.command()
-@click.argument("id")
-def delete(id):
-    """Deletes a note"""
-    db.delete_by_position(id)
-    click.echo(f"Deleted note {id}")
+@click.argument("position", type=int)
+def delete(position):
+    """Delete a note by its position in the list.
+
+    Position is the number shown in `list`. After a delete the
+    remaining notes are renumbered, and filtered views
+    (--completed / --uncompleted) renumber too — so take the
+    position from a plain `list`.
+    """
+
+    try:
+        db.delete_by_position(position)
+    except IndexError:
+        click.echo(f"Note {position} doesn't exist!")
+        return
+
+    click.echo(f"Deleted note {position}")
 
 
 @cli.command(name="mark-done")
-@click.argument("id")
-def mark_done(id):
-    """Marks note as done"""
-    db.mark_done(id)
-    click.echo(f"Note {id} marked as done!")
+@click.argument("position", type=int)
+def mark_done(position):
+    """Mark a note as done, by its position in the list.
+
+    Position is the number shown in a plain `list`. Filtered
+    views may renumber notes, so use the position from `list`
+    without filters.
+    """
+
+    try:
+        db.mark_done(position)
+    except IndexError:
+        click.echo(f"Note {position} doesn't exist!")
+        return
+
+    click.echo(f"Note {position} marked as done!")
 
 
 @cli.command(name="mark-undone")
-@click.argument("id")
-def mark_undone(id):
-    """Marks note as undone"""
-    db.mark_undone(id)
-    click.echo(f"Note {id} marked as undone!")
+@click.argument("position", type=int)
+def mark_undone(position):
+    """Mark a note as not done, by its position in the list.
+
+    Position is the number shown in a plain `list`. Filtered
+    views may renumber notes, so use the position from `list`
+    without filters.
+    """
+
+    try:
+        db.mark_undone(position)
+    except IndexError:
+        click.echo(f"Note {position} doesn't exist!")
+        return
+
+    click.echo(f"Note {position} marked as undone!")
