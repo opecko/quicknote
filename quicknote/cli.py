@@ -28,7 +28,7 @@ def add(text):
 @click.option("--completed", "-c", is_flag=True, help="Shows only completed notes")
 @click.option("--uncompleted", "-u", is_flag=True, help="Shows only uncompleted notes")
 def list_notes(uncompleted, completed):
-    """Lists completed notes (see more at 'notes list --help')"""
+    """Lists all notes (see more at 'notes list --help')"""
 
     notes = db.get_all()
 
